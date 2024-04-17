@@ -7,7 +7,7 @@ tags: security
 
 I've finally gotten a chance to catch up on my steadily increasing backlog of RSS articles, and one in particular from Luke Jennings at Push Security [caught my eye](https://pushsecurity.com/blog/okta-swa/). Luke took a look at the Okta functionality around SWA's and what kinds of security guarantees they provide. I strongly recommend you give the article a read through before continuing, as this post will be based on the information included there.
 
-Luke did not include a PoC with their blog post, but I wanted to have this for future testing, so I set out to build one myself. The final product of this can be found [on my github](https://github.com/sig1nt/SWArevealer), which will be live by the time this blogpost is published. This tool allows one to specify an Okta account and it's login credentials, and will enumerate and extract all the SWA passwords assigned to that account, even those hidden from the user normally. This can be very useful if you've already compromised an Okta account and now want to escalate privledge or exapnd your password collection.
+Luke did not include a PoC with their blog post, but I wanted to have this for future testing, so I set out to build one myself. The final product of this can be found [on my github](https://github.com/sig1nt/SWArevealer), which will be live by the time this blog post is published. This tool allows one to specify an Okta account and it's login credentials, and will enumerate and extract all the SWA passwords assigned to that account, even those hidden from the user normally. This can be very useful if you've already compromised an Okta account and now want to escalate privilege or expand your password collection.
 
 About halfway into building this tool, I realized that Luke was researching the new Okta Identity Engine accounts, while my PoC was being built against Okta Classic. While OIE is the future of Okta, an informal survey of whoever would respond to my Discord questions determined that enough Okta Classic still exists that a documenting of my research on how to implement this tool would be helpful. **None of the research presented here exposes any previously undisclosed security issues in Okta.**
 
@@ -36,7 +36,7 @@ This endpoint gives a list of all the different sites that will need SWA plugin 
 
 Each SWA site will have an entry in the `site` array, which one can in turn use the `scriptURI` to make a request to get the username and password to be autofilled. Since the plugin needs to fill in the password regardless of secrecy, this attack bypasses the password transparency controls, just like Lukes. However, to call these API's, we need to be able to get both a session id and a bearer token from Okta, so we must now contend with Okta's login stack.
 
-## Logining In to Okta
+## Login to Okta
 
 ### Session Login
 
@@ -49,12 +49,12 @@ Once you've accomplished this, you can follow the official [Authentication API](
 
 The state token you get from that response will be used in the undocumented/very-poorly-documented `/login/token/redirect` API route. This was the most finicky part of this login process, as the route will fail with a generic 403 if the request is not crafted exactly correctly. Some of the things that caused this call to fail:
 
-- Using a state token that was generated through the one-shot call to `/api/v1/authn` rather than submitting the password seperately
+- Using a state token that was generated through the one-shot call to `/api/v1/authn` rather than submitting the password separately
 - Not including all the cookies, even the seemingly meaningless ones, that you would have gotten from a `GET` request to your Okta domain (https://<something>.okta.com)
 - Not including the state token in all steps of the login process
 - Using HTTP 1.1 instead of HTTP 2 (this one got me for a while)
 
-Assuming you've done all this correctly you should now see a 302, and more importantly you should recieve a `sid` cookie. You in theory could be done at this point, because the actual password getting call is only authenticated with the `sid`. However, if you want that sweet `/api/plugin/2/sites` call which enumerates all the SWAs in an account for you, you'll need a bearer token, so that means...
+Assuming you've done all this correctly you should now see a 302, and more importantly you should receive a `sid` cookie. You in theory could be done at this point, because the actual password getting call is only authenticated with the `sid`. However, if you want that sweet `/api/plugin/2/sites` call which enumerates all the SWAs in an account for you, you'll need a bearer token, so that means...
 
 ### Time For Some OAuth
 
