@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: post
 title: PoC Release + Some Okta Research
 date: 2024-01-27
 tags: security
