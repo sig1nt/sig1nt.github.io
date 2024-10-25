@@ -36,11 +36,11 @@ This was also confirmed with the patch notes for Big Sur:
 
 > New in macOS Big Sur 11 beta, the system ships with a built-in dynamic linker cache of all system-provided libraries. As part of this change, copies of dynamic libraries are no longer present on the filesystem. Code that attempts to check for dynamic library presence by looking for a file at a path or enumerating a directory will fail. Instead, check for library presence by attempting to dlopen() the path, which will correctly check for the library in the cache.
 
-Instead of having the binaries themselves on disk, Apple has opted to package all of them into a "cache" file that will be immediately loaded into memory on startup. Since Apple controls the dynamic loader, it's able to intercept any `dlopen` or other attempts to link against the library and feed the cached version instead. This explains why `otool` thinks we're getting our libraries from that file location, even though they aren't there. Reading through others thoughts on this, it seems to have some kind of security/performance implications, but I am always very suspicious of when those two things get waved around randomly.
+Instead of having the binaries themselves on disk, Apple has opted to package all of them into a "cache" file that will be immediately loaded into memory on startup. Since Apple controls the dynamic loader, it's able to intercept any `dlopen` or other attempts to link against the library and feed the cached version instead. This explains why `otool` thinks we're getting our libraries from that file location, even though they aren't there. Reading through others' thoughts on this, it seems to have some kind of security/performance implications, but I am always very suspicious of when those two things get waved around randomly.
 
 # Ghidra To The Rescue
 
-What it does mean is that we can't just import these into Ghidra like normal libraries, so reading through them is going to be more difficult. Or so I thought, but turns out Ghidra already built the functionality to read these "cache" files, since they really just end up being binary archives. We can access this functionality by going to this menu:
+What it does mean is that we can't just import these into Ghidra like normal libraries, so reading through them is going to be more difficult. Or so I thought, but it turns out Ghidra already built the functionality to read these "cache" files, since they really just end up being binary archives. We can access this functionality by going to this menu:
 
 ![File > Open File System](/assets/images/open-file-system.png)
 
@@ -52,7 +52,7 @@ From here, you can select which libraries you want to import, and if you import 
 
 # For Things Outside Ghidra
 
-[I'm told](https://mjtsai.com/blog/2020/07/27/hopper-for-apple-silicon-and-big-sur/) if you are using Hopper, then they can also do all of this for you. Hopper has a pretty good track record of doing *OS stuff correctly, so I wold believe this claim, but I haven't tested it yet.
+[I'm told](https://mjtsai.com/blog/2020/07/27/hopper-for-apple-silicon-and-big-sur/) if you are using Hopper, then they can also do all of this for you. Hopper has a pretty good track record of doing *OS stuff correctly, so I would believe this claim, but I haven't tested it yet.
 
 For everyone else, I recommend [dyld-shared-cache-extractor](https://github.com/keith/dyld-shared-cache-extractor). This project calls into `dyld`'s own methods as a way to extract all the libraries out to a folder in the filesystem. The setup is pretty basic, but it will get you all the files back on system, to be reversed however you may please.
 
