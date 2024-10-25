@@ -54,6 +54,6 @@ From here, you can select which libraries you want to import, and if you import 
 
 [I'm told](https://mjtsai.com/blog/2020/07/27/hopper-for-apple-silicon-and-big-sur/) if you are using Hopper, then they can also do all of this for you. Hopper has a pretty good track record of doing *OS stuff correctly, so I wold believe this claim, but I haven't tested it yet.
 
-For everyone else, I recommend [dyld-shared-cache-extractor](https://github.com/keith/dyld-shared-cache-extractor). This project calls into Apple's own methods as a way to extract all the libraries out to a folder in the filesystem. The setup is pretty basic, but it will get you all the files back on system, to be reversed however you may please.
+For everyone else, I recommend [dyld-shared-cache-extractor](https://github.com/keith/dyld-shared-cache-extractor). This project calls into `dyld`'s own methods as a way to extract all the libraries out to a folder in the filesystem. The setup is pretty basic, but it will get you all the files back on system, to be reversed however you may please.
 
 Happy hacking!
