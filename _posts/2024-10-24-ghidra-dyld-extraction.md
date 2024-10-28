@@ -36,7 +36,7 @@ This was also confirmed with the patch notes for Big Sur:
 
 > New in macOS Big Sur 11 beta, the system ships with a built-in dynamic linker cache of all system-provided libraries. As part of this change, copies of dynamic libraries are no longer present on the filesystem. Code that attempts to check for dynamic library presence by looking for a file at a path or enumerating a directory will fail. Instead, check for library presence by attempting to dlopen() the path, which will correctly check for the library in the cache.
 
-Instead of having the binaries themselves on disk, Apple has opted to package all of them into a "cache" file that will be immediately loaded into memory on startup. Since Apple controls the dynamic loader, it's able to intercept any `dlopen` or other attempts to link against the library and feed the cached version instead. This explains why `otool` thinks we're getting our libraries from that file location, even though they aren't there. Reading through others' thoughts on this, it seems to have some kind of security/performance implications, but I am always very suspicious of when those two things get waved around randomly.
+Instead of having the binaries themselves on disk, Apple has opted to package all of them into a "cache" file that will be immediately loaded into memory on startup. Since Apple controls the dynamic loader, it's able to intercept any `dlopen` or other attempts to link against the library and feed the cached version instead. This explains why `otool` thinks we're getting our libraries from that file location, even though they aren't there. Reading through others' thoughts on this, it seems to have some kind of security/performance implications, but I am always very suspicious of when those two things get waved around randomly.[^1]
 
 # Ghidra To The Rescue
 
@@ -57,3 +57,5 @@ From here, you can select which libraries you want to import, and if you import 
 For everyone else, I recommend [dyld-shared-cache-extractor](https://github.com/keith/dyld-shared-cache-extractor). This project calls into `dyld`'s own methods as a way to extract all the libraries out to a folder in the filesystem. The setup is pretty basic, but it will get you all the files back on system, to be reversed however you may please.
 
 Happy hacking!
+
+[^1]: For a few really good reasons (that I definitely learned from) about why this might be better for performance specifically, see [this comment from lgerbarg on Lobste.rs](https://lobste.rs/s/oxdvms/viewing_macos_system_libraries_ghidra#c_4pplcz). 
